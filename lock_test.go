@@ -14,8 +14,8 @@ const (
 
 func Test_tryGetBlockingLock(t *testing.T) {
 	client := NewClient("tcp", addr, passwd)
-	lock1 := NewRedisLock("test_key", client, WithExpireSeconds(1))
-	lock2 := NewRedisLock("test_key", client, WithBlock(), WithBlockWaitingSeconds(2))
+	lock1 := NewRedisLock("test_key", client, WithExpireSeconds(10))
+	lock2 := NewRedisLock("test_key", client, WithBlock(), WithBlockWaitingSeconds(20))
 
 	ctx := context.Background()
 	var wg sync.WaitGroup

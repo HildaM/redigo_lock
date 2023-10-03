@@ -1,5 +1,7 @@
 package redigo_lock
 
+import "time"
+
 const (
 	// 默认连接池超过 10 s 释放连接
 	DefaultIdleTimeoutSeconds = 10
@@ -106,4 +108,37 @@ func WithExpireSeconds(expireSeconds int64) LockOption {
 	return func(o *LockOptions) {
 		o.expireSeconds = expireSeconds
 	}
+}
+
+// RedLockOptions 分布式锁实现
+type RedLockOptions struct {
+	singleNodesTimeout time.Duration
+	expireDuration     time.Duration
+}
+
+type RedLockOption func(options *RedLockOptions)
+
+func WithSingleNodesTimeout(singleNodesTimeout time.Duration) RedLockOption {
+	return func(o *RedLockOptions) {
+		o.singleNodesTimeout = singleNodesTimeout
+	}
+}
+
+func WithRedLockExpireDuration(expireDuration time.Duration) RedLockOption {
+	return func(o *RedLockOptions) {
+		o.expireDuration = expireDuration
+	}
+}
+
+func setRedLockOption(r *RedLockOptions) {
+	if r.singleNodesTimeout <= 0 {
+		r.singleNodesTimeout = DefaultSingleLockTimeout
+	}
+}
+
+type SingleNodeConf struct {
+	Network  string
+	Address  string
+	Password string
+	Opts     []ClientOption
 }
