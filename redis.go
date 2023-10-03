@@ -12,7 +12,7 @@ import (
 // SetNEX 方法，语义是 set with expire time only if key not exist. 用于支持分布式锁的加锁操作
 // Eval 方法，用以执行 lua 脚本，后续用来支持分布式锁的解锁操作
 type LockClient interface {
-	SetNX(ctx context.Context, key, value string, expireSeconds int64) (int64, error)
+	SetNEX(ctx context.Context, key, value string, expireSeconds int64) (int64, error)
 	Eval(ctx context.Context, src string, keyCount int, keysAndArgs []interface{}) (interface{}, error)
 }
 
@@ -84,7 +84,7 @@ func (c *Client) getRedisConn() (redis.Conn, error) {
 	return conn, err
 }
 
-func (c *Client) SetNX(ctx context.Context, key, value string, expireSeconds int64) (int64, error) {
+func (c *Client) SetNX(ctx context.Context, key, value string) (int64, error) {
 	if key == "" || value == "" {
 		return -1, errors.New("ERROR: redis key or value may be empty!")
 	}

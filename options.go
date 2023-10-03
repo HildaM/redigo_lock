@@ -64,3 +64,46 @@ func WithWaitMode() ClientOption {
 		c.wait = true
 	}
 }
+
+// LockOptions 分布式锁配置
+type LockOptions struct {
+	isBlock             bool
+	blockWaitingSeconds int64
+	expireSeconds       int64
+	watchDogMode        bool
+}
+
+type LockOption func(*LockOptions)
+
+func setLockOptions(lock *LockOptions) {
+	if lock.isBlock && lock.blockWaitingSeconds <= 0 {
+		// 默认阻塞等待时间上限是5秒
+		lock.blockWaitingSeconds = 5
+	}
+
+	// 倘若未设置分布式锁的过期时间，则会启动 watchdog
+	if lock.expireSeconds > 0 {
+		return
+	}
+
+	// 用户未显式指定锁的过期时间，则此时会启动看门狗
+	lock.expireSeconds = DefaultLockExpireSeconds
+	lock.watchDogMode = true
+}
+
+// LockOptions 配置函数
+func WithBlock() LockOption {
+	return func(o *LockOptions) {
+		o.isBlock = true
+	}
+}
+func WithBlockWaitingSeconds(waitingSeconds int64) LockOption {
+	return func(o *LockOptions) {
+		o.blockWaitingSeconds = waitingSeconds
+	}
+}
+func WithExpireSeconds(expireSeconds int64) LockOption {
+	return func(o *LockOptions) {
+		o.expireSeconds = expireSeconds
+	}
+}
